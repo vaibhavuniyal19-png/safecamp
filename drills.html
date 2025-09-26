@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake in Comprehensive Disaster Preparedness - DisasterHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_kMEMNCAxhnh3KcFmAOv2KTJg62oMDgI",
+            authDomain: "safecampus-69c4a.firebaseapp.com",
+            projectId: "safecampus-69c4a",
+            storageBucket: "safecampus-69c4a.firebasestorage.app",
+            messagingSenderId: "902914794613",
+            appId: "1:902914794613:web:9aa5e5d9361520a170443c"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebase = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, collection, addDoc, getDocs, query, orderBy, limit };
+    </script>
+</head>
+<body class="bg-black text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="index.html" class="flex items-center space-x-2">
+                        <i data-lucide="shield" class="h-8 w-8 text-white"></i>
+                        <span class="text-xl font-bold">DisasterHub</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-300 hover:text-white transition-colors">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-white to-gray-300 rounded-lg flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="gamepad-2" class="w-8 h-8 text-black"></i>
+            </div>
+            <!-- Updated title to match requirements -->
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Virtual Drill</h1>
+            <p class="text-xl text-gray-300 mb-8">Select a disaster scenario to begin your virtual drill.</p>
+        </div>
+    </section>
+
+    <!-- Updated scenario selection grid to match exact requirements -->
+    <!-- Scenario Selection Grid -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Earthquake Drill -->
+                <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6 hover:border-white/30 hover:bg-gray-800/50 transition-all cursor-pointer group" onclick="startDrill('earthquake')">
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-200 to-white rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="mountain" class="w-8 h-8 text-black"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Earthquake Drill</h3>
+                    <p class="text-gray-300 mb-6">Learn the Drop, Cover, and Hold On technique through interactive scenarios.</p>
+                    <button class="w-full bg-white text-black py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Start Drill
+                    </button>
+                </div>
+
+                <!-- Flood Drill -->
+                <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6 hover:border-white/30 hover:bg-gray-800/50 transition-all cursor-pointer group" onclick="startDrill('flood')">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-200 to-blue-400 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="waves" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Flood Drill</h3>
+                    <p class="text-gray-300 mb-6">Practice flood response and evacuation procedures in rising water scenarios.</p>
+                    <button class="w-full bg-white text-black py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Start Drill
+                    </button>
+                </div>
+
+                <!-- Wildfire Drill -->
+                <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6 hover:border-white/30 hover:bg-gray-800/50 transition-all cursor-pointer group" onclick="startDrill('wildfire')">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-300 to-red-500 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="flame" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Wildfire Drill</h3>
+                    <p class="text-gray-300 mb-6">Master wildfire evacuation and defensible space strategies.</p>
+                    <button class="w-full bg-white text-black py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Start Drill
+                    </button>
+                </div>
+
+                <!-- Severe Weather Drill -->
+                <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6 hover:border-white/30 hover:bg-gray-800/50 transition-all cursor-pointer group" onclick="startDrill('severe-weather')">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-300 to-purple-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="cloud-lightning" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Severe Weather Drill</h3>
+                    <p class="text-gray-300 mb-6">Navigate lightning storms and tornado safety procedures.</p>
+                    <button class="w-full bg-white text-black py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Start Drill
+                    </button>
+                </div>
+
+                <!-- Cyclone Preparedness Drill -->
+                <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6 hover:border-white/30 hover:bg-gray-800/50 transition-all cursor-pointer group" onclick="startDrill('cyclone')">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-300 to-teal-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="wind" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Cyclone Preparedness Drill</h3>
+                    <p class="text-gray-300 mb-6">Learn hurricane evacuation and shelter-in-place strategies.</p>
+                    <button class="w-full bg-white text-black py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Start Drill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced interactive drill experience section -->
+    <!-- Interactive Drill Experience -->
+    <section id="drillArea" class="py-20 px-4 sm:px-6 lg:px-8 hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="drillTitle" class="text-3xl font-bold"></h2>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <i data-lucide="clock" class="w-5 h-5 mr-2 text-blue-400"></i>
+                            <span id="timer">00:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="star" class="w-5 h-5 mr-2 text-yellow-400"></i>
+                            <span id="score">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced animation area with CSS animations for character movements -->
+                <div id="animationArea" class="bg-gray-800 rounded-lg p-6 mb-6 min-h-64 flex items-center justify-center relative overflow-hidden">
+                    <div id="gameArea" class="relative w-full h-64 bg-gradient-to-b from-gray-700 to-gray-800 rounded-lg">
+                        <!-- Room objects that player can interact with -->
+                        <div id="safeSpot" class="absolute bottom-8 left-8 w-16 h-12 bg-brown-600 rounded cursor-pointer hover:bg-brown-500 transition-colors flex items-center justify-center text-2xl" title="Sturdy Table">
+                            🪑
+                        </div>
+                        <div id="unsafeSpot1" class="absolute top-8 right-8 w-12 h-16 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors flex items-center justify-center text-2xl" title="Window">
+                            🪟
+                        </div>
+                        <div id="unsafeSpot2" class="absolute top-8 left-1/2 transform -translate-x-1/2 w-12 h-16 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors flex items-center justify-center text-2xl" title="Door">
+                            🚪
+                        </div>
+                        <div id="unsafeSpot3" class="absolute bottom-8 right-8 w-16 h-12 bg-gray-600 rounded cursor-pointer hover:bg-gray-500 transition-colors flex items-center justify-center text-2xl" title="Bed">
+                            🛏️
+                        </div>
+                        
+                        <!-- Draggable player character -->
+                        <div id="player" class="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 bg-blue-600 rounded-full cursor-move flex items-center justify-center text-2xl z-10 transition-all duration-300" draggable="true" title="You - Drag to safety!">
+                            🧍
+                        </div>
+                        
+                        <!-- Feedback area -->
+                        <div id="gameMessage" class="absolute top-4 left-4 right-4 bg-black/70 text-white p-3 rounded-lg text-center hidden">
+                            <p id="messageText" class="font-semibold"></p>
+                        </div>
+                        
+                        <!-- Game instructions -->
+                        <div class="absolute bottom-2 left-2 right-2 text-center text-sm text-gray-300">
+                            Drag the person to the safest spot during an earthquake!
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="drillContent" class="min-h-64">
+                    <!-- Drill content will be loaded here -->
+                </div>
+                
+                <div class="flex justify-between items-center mt-6">
+                    <button id="backToDrills" class="text-gray-400 hover:text-white transition-colors">
+                        ← Back to Drills
+                    </button>
+                    <button id="restartDrill" class="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Restart Drill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Added completion and summary section -->
+    <!-- Completion Summary -->
+    <section id="completionArea" class="py-20 px-4 sm:px-6 lg:px-8 hidden">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-12">
+                <div id="completionIcon" class="w-24 h-24 mx-auto mb-6 bg-green-600 rounded-full flex items-center justify-center">
+                    <i data-lucide="check" class="w-12 h-12 text-white"></i>
+                </div>
+                <h2 id="completionTitle" class="text-4xl font-bold mb-4">You've completed the Earthquake Drill!</h2>
+                <p class="text-xl text-gray-300 mb-8">Great job! You're now better prepared for earthquake emergencies.</p>
+                
+                <div class="flex justify-center space-x-4">
+                    <button id="tryAnotherDrill" class="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Try Another Drill
+                    </button>
+                    <button id="goToResources" class="border border-white/20 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors">
+                        Go to Resources
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        let currentDrill = null;
+        let drillTimer = null;
+        let drillTime = 0;
+        let drillScore = 0;
+        let currentScenarioIndex = 0;
+
+        const drills = {
+            earthquake: {
+                title: "Earthquake Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest spot during an earthquake!",
+                    safeSpot: { id: "safeSpot", emoji: "🪑", title: "Sturdy Table", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "🪟", title: "Window", correct: false },
+                        { id: "unsafeSpot2", emoji: "🚪", title: "Door", correct: false },
+                        { id: "unsafeSpot3", emoji: "🛏️", title: "Bed", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Taking cover under a sturdy table is the safest action during an earthquake.",
+                    incorrectMessage: "Incorrect! ❌ This location is not safe during an earthquake. Try the sturdy table instead."
+                },
+                scenarios: [
+                    {
+                        question: "You feel the ground shaking. What's your immediate response?",
+                        options: [
+                            { text: "Drop, Cover, and Hold On under a sturdy table", correct: true, animation: "hideUnderTable" },
+                            { text: "Run outside immediately", correct: false, animation: "runToDoor" },
+                            { text: "Stand in a doorway", correct: false, animation: "standInDoorway" },
+                            { text: "Call for help first", correct: false, animation: "usePhone" }
+                        ],
+                        feedback: {
+                            correct: "Excellent! Drop, Cover, and Hold On is the correct response during earthquakes.",
+                            incorrect: "Remember: Drop, Cover, and Hold On. Don't run during shaking - you could fall and get injured."
+                        }
+                    },
+                    {
+                        question: "The shaking has stopped. What should you do next?",
+                        options: [
+                            { text: "Check for injuries and hazards before moving", correct: true, animation: "lookAround" },
+                            { text: "Immediately run outside", correct: false, animation: "runToDoor" },
+                            { text: "Turn on all electrical appliances", correct: false, animation: "usePhone" },
+                            { text: "Go back to normal activities", correct: false, animation: "standNormal" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Always check for injuries and hazards before moving after an earthquake.",
+                            incorrect: "After an earthquake, carefully assess the situation before taking action."
+                        }
+                    },
+                    {
+                        question: "You're outside after the earthquake. What's your priority?",
+                        options: [
+                            { text: "Stay away from buildings and power lines", correct: true, animation: "moveAway" },
+                            { text: "Go back inside to get belongings", correct: false, animation: "runToDoor" },
+                            { text: "Drive away immediately", correct: false, animation: "standNormal" },
+                            { text: "Climb on elevated structures", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Right! Stay in open areas away from buildings that might have structural damage.",
+                            incorrect: "After an earthquake, avoid buildings and overhead hazards until they're inspected."
+                        }
+                    }
+                ]
+            },
+            flood: {
+                title: "Flood Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest place during a flood!",
+                    safeSpot: { id: "safeSpot", emoji: "⛰️", title: "Mountain/High Ground", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "🛣️", title: "Road", correct: false },
+                        { id: "unsafeSpot2", emoji: "🏠", title: "House", correct: false },
+                        { id: "unsafeSpot3", emoji: "🪑", title: "Chair", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Moving to higher ground like a mountain is the safest action during a flood.",
+                    incorrectMessage: "Incorrect! ❌ This location is not safe during a flood. Try moving to higher ground instead."
+                },
+                scenarios: [
+                    {
+                        question: "Water is rising rapidly around your home. What's your first action?",
+                        options: [
+                            { text: "Move to the highest floor immediately", correct: true, animation: "moveToWindow" },
+                            { text: "Try to stop the water with sandbags", correct: false, animation: "standNormal" },
+                            { text: "Gather all your belongings first", correct: false, animation: "lookAround" },
+                            { text: "Wait to see how high it gets", correct: false, animation: "standNormal" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Getting to higher ground is the top priority in flood situations.",
+                            incorrect: "In floods, your safety comes first. Move to higher ground immediately - belongings can be replaced."
+                        }
+                    },
+                    {
+                        question: "You need to evacuate through flood water. What's the safest approach?",
+                        options: [
+                            { text: "Avoid walking in moving water over 6 inches", correct: true, animation: "moveAway" },
+                            { text: "Walk quickly through any depth", correct: false, animation: "runToDoor" },
+                            { text: "Drive through flooded roads", correct: false, animation: "standNormal" },
+                            { text: "Swim across deep areas", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Excellent! Just 6 inches of moving water can knock you down.",
+                            incorrect: "Never underestimate flood water - it's much more powerful than it looks."
+                        }
+                    },
+                    {
+                        question: "You're trapped on an upper floor with rising water. What should you do?",
+                        options: [
+                            { text: "Signal for help and wait for rescue", correct: true, animation: "signalHelp" },
+                            { text: "Jump into the water", correct: false, animation: "standNormal" },
+                            { text: "Break through the roof", correct: false, animation: "lookAround" },
+                            { text: "Try to swim to safety", correct: false, animation: "runToDoor" }
+                        ],
+                        feedback: {
+                            correct: "Right! Signal for help and wait for professional rescue teams.",
+                            incorrect: "Stay put and signal for help - rescue teams are trained for flood rescues."
+                        }
+                    }
+                ]
+            },
+            'severe-weather': {
+                title: "Thunderstorm Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest place during a thunderstorm!",
+                    safeSpot: { id: "safeSpot", emoji: "🏠", title: "Inside House", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "🏞️", title: "Park", correct: false },
+                        { id: "unsafeSpot2", emoji: "🌊", title: "River", correct: false },
+                        { id: "unsafeSpot3", emoji: "⛰️", title: "Mountain", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Going inside a house is the safest action during a thunderstorm.",
+                    incorrectMessage: "Incorrect! ❌ This location is not safe during a thunderstorm. Try going inside the house instead."
+                },
+                scenarios: [
+                    {
+                        question: "You see lightning and hear thunder 10 seconds later. What should you do?",
+                        options: [
+                            { text: "Seek substantial shelter immediately", correct: true, animation: "runToDoor" },
+                            { text: "Continue outdoor activities", correct: false, animation: "standNormal" },
+                            { text: "Stand under a large tree", correct: false, animation: "lookAround" },
+                            { text: "Lie flat on the ground", correct: false, animation: "hideUnderTable" }
+                        ],
+                        feedback: {
+                            correct: "Correct! Lightning is only 2 miles away - get inside a substantial building immediately.",
+                            incorrect: "When lightning is close, seek substantial shelter immediately. The 30-30 rule: seek shelter when thunder follows lightning by 30 seconds or less."
+                        }
+                    },
+                    {
+                        question: "A tornado warning is issued for your area. Where's the safest place to go?",
+                        options: [
+                            { text: "Lowest floor, interior room, away from windows", correct: true, animation: "hideUnderTable" },
+                            { text: "Upper floor with good view", correct: false, animation: "moveToWindow" },
+                            { text: "In your car driving away", correct: false, animation: "runToDoor" },
+                            { text: "Outside in an open field", correct: false, animation: "moveAway" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Basements or lowest floors in interior rooms are safest.",
+                            incorrect: "Get to the lowest floor in an interior room, away from windows and potential debris."
+                        }
+                    },
+                    {
+                        question: "You're caught in a severe thunderstorm while driving. What should you do?",
+                        options: [
+                            { text: "Pull over safely and stay in the car", correct: true, animation: "standNormal" },
+                            { text: "Drive faster to get through it", correct: false, animation: "runToDoor" },
+                            { text: "Get out and seek shelter under a bridge", correct: false, animation: "moveAway" },
+                            { text: "Keep driving normally", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Right! Your car is a safe place during lightning - just pull over safely.",
+                            incorrect: "Stay in your vehicle during severe weather - it provides protection from lightning."
+                        }
+                    }
+                ]
+            },
+            wildfire: {
+                title: "Wildfire Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest action during a wildfire!",
+                    safeSpot: { id: "safeSpot", emoji: "🏃‍♂️", title: "Run Away", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "⬇️", title: "Drop Down", correct: false },
+                        { id: "unsafeSpot2", emoji: "🏠", title: "House", correct: false },
+                        { id: "unsafeSpot3", emoji: "🪑", title: "Stay Put", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Running away from the wildfire is the safest action when evacuation is possible.",
+                    incorrectMessage: "Incorrect! ❌ This action is not safe during a wildfire. Try running away from the fire instead."
+                },
+                scenarios: [
+                    {
+                        question: "You receive a wildfire evacuation warning. What's your immediate action?",
+                        options: [
+                            { text: "Prepare to leave immediately with emergency kit", correct: true, animation: "runToDoor" },
+                            { text: "Pack all valuable items first", correct: false, animation: "lookAround" },
+                            { text: "Water down your entire property", correct: false, animation: "standNormal" },
+                            { text: "Wait to see the actual fire", correct: false, animation: "moveToWindow" }
+                        ],
+                        feedback: {
+                            correct: "Excellent! Be ready to evacuate immediately when warnings are issued.",
+                            incorrect: "Don't delay evacuation. Wildfires move faster than you think and can change direction quickly."
+                        }
+                    },
+                    {
+                        question: "While evacuating, you encounter heavy smoke on the road. What should you do?",
+                        options: [
+                            { text: "Turn around and find an alternate route", correct: true, animation: "moveAway" },
+                            { text: "Drive through quickly with headlights on", correct: false, animation: "runToDoor" },
+                            { text: "Stop and wait for it to clear", correct: false, animation: "standNormal" },
+                            { text: "Get out and walk", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Never drive through heavy smoke - find another route.",
+                            incorrect: "Smoke can be deadly and disorienting. Always find an alternate route."
+                        }
+                    },
+                    {
+                        question: "You're trapped by wildfire with no escape route. What's your best option?",
+                        options: [
+                            { text: "Find a cleared area away from vegetation", correct: true, animation: "moveAway" },
+                            { text: "Hide in a wooden building", correct: false, animation: "hideUnderTable" },
+                            { text: "Climb a tall tree", correct: false, animation: "lookAround" },
+                            { text: "Run toward the fire", correct: false, animation: "runToDoor" }
+                        ],
+                        feedback: {
+                            correct: "Right! Clear areas with minimal vegetation are your safest bet.",
+                            incorrect: "Avoid buildings and vegetation - find open, cleared areas."
+                        }
+                    }
+                ]
+            },
+            landslide: {
+                title: "Landslide Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest action during a landslide!",
+                    safeSpot: { id: "safeSpot", emoji: "🏃‍♂️", title: "Run Away from Mountain Slope", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "🛣️", title: "Road", correct: false },
+                        { id: "unsafeSpot2", emoji: "🌳", title: "Under Tree", correct: false },
+                        { id: "unsafeSpot3", emoji: "🪨", title: "Near Rocks", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Running away from the mountain slope is the safest action during a landslide.",
+                    incorrectMessage: "Incorrect! ❌ This location is not safe during a landslide. Try running away from the mountain slope instead."
+                },
+                scenarios: [
+                    {
+                        question: "You notice rocks and debris starting to fall from a slope above. What should you do?",
+                        options: [
+                            { text: "Move away from the slope immediately", correct: true, animation: "moveAway" },
+                            { text: "Take shelter under a large tree", correct: false, animation: "lookAround" },
+                            { text: "Stay on the road and wait", correct: false, animation: "standNormal" },
+                            { text: "Move closer to investigate", correct: false, animation: "runToDoor" }
+                        ],
+                        feedback: {
+                            correct: "Excellent! Getting away from unstable slopes is the top priority.",
+                            incorrect: "Never stay near unstable slopes - move to safer ground immediately."
+                        }
+                    },
+                    {
+                        question: "During heavy rainfall, you're near a steep hillside. What's your best action?",
+                        options: [
+                            { text: "Evacuate to higher, stable ground away from the slope", correct: true, animation: "moveAway" },
+                            { text: "Wait under an overhang", correct: false, animation: "hideUnderTable" },
+                            { text: "Drive along the base of the hill", correct: false, animation: "runToDoor" },
+                            { text: "Stay indoors if near the slope", correct: false, animation: "standNormal" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Move to stable ground away from potential landslide zones.",
+                            incorrect: "Heavy rain increases landslide risk - evacuate to stable areas away from slopes."
+                        }
+                    },
+                    {
+                        question: "You hear rumbling sounds from a hillside above you. What should you do?",
+                        options: [
+                            { text: "Run perpendicular to the slope direction", correct: true, animation: "moveAway" },
+                            { text: "Run straight downhill", correct: false, animation: "runToDoor" },
+                            { text: "Lie flat on the ground", correct: false, animation: "hideUnderTable" },
+                            { text: "Climb higher up the slope", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Right! Moving perpendicular to the slope gets you out of the debris path.",
+                            incorrect: "Don't run downhill or stay in the path - move sideways away from the landslide zone."
+                        }
+                    }
+                ]
+            },
+            cyclone: {
+                title: "Cyclone Preparedness Drill",
+                character: "🧍",
+                gameType: "drag-drop",
+                gameConfig: {
+                    instruction: "Drag the person to the safest place during a cyclone!",
+                    safeSpot: { id: "safeSpot", emoji: "🏠", title: "Home", correct: true },
+                    unsafeSpots: [
+                        { id: "unsafeSpot1", emoji: "🛣️", title: "Road", correct: false },
+                        { id: "unsafeSpot2", emoji: "🏞️", title: "Park", correct: false },
+                        { id: "unsafeSpot3", emoji: "⛰️", title: "Mountain", correct: false }
+                    ],
+                    correctMessage: "Correct! 🎉 Staying at home in a sturdy building is the safest action during a cyclone.",
+                    incorrectMessage: "Incorrect! ❌ This location is not safe during a cyclone. Try going home to a sturdy building instead."
+                },
+                scenarios: [
+                    {
+                        question: "A Category 3 hurricane approaches in 24 hours. What's your top priority?",
+                        options: [
+                            { text: "Execute evacuation plan if ordered by authorities", correct: true, animation: "runToDoor" },
+                            { text: "Stock up on supplies at the store", correct: false, animation: "lookAround" },
+                            { text: "Board up all windows first", correct: false, animation: "standNormal" },
+                            { text: "Wait for more weather updates", correct: false, animation: "moveToWindow" }
+                        ],
+                        feedback: {
+                            correct: "Excellent! Follow evacuation orders immediately when issued by authorities.",
+                            incorrect: "Don't wait - follow evacuation orders as soon as they're issued. Your life is more important than property."
+                        }
+                    },
+                    {
+                        question: "You're sheltering in place during the hurricane. Where's the safest room?",
+                        options: [
+                            { text: "Interior room on lowest floor, away from windows", correct: true, animation: "hideUnderTable" },
+                            { text: "Room with large windows to see outside", correct: false, animation: "moveToWindow" },
+                            { text: "Highest floor to avoid flooding", correct: false, animation: "lookAround" },
+                            { text: "Garage or basement", correct: false, animation: "moveAway" }
+                        ],
+                        feedback: {
+                            correct: "Perfect! Interior rooms on the lowest floor provide the best protection.",
+                            incorrect: "Stay in interior rooms away from windows and potential wind damage."
+                        }
+                    },
+                    {
+                        question: "The eye of the hurricane passes over. What should you do?",
+                        options: [
+                            { text: "Stay inside - the other half is coming", correct: true, animation: "standNormal" },
+                            { text: "Go outside to assess damage", correct: false, animation: "runToDoor" },
+                            { text: "Open all windows for fresh air", correct: false, animation: "moveToWindow" },
+                            { text: "Start cleanup immediately", correct: false, animation: "lookAround" }
+                        ],
+                        feedback: {
+                            correct: "Right! The eye is just a temporary calm - the second half of the hurricane is often worse.",
+                            incorrect: "Never go outside during the eye - the second half of the hurricane is often worse."
+                        }
+                    }
+                ]
+            }
+        };
+
+        function animateCharacter(animationType) {
+            const character = document.getElementById('character');
+            const effects = document.getElementById('effects');
+            const room = document.getElementById('room');
+            
+            // Reset previous animations
+            character.style.transform = 'translate(-50%, 0)';
+            if (effects) {
+                effects.style.opacity = '0';
+                effects.textContent = '';
+            }
+            
+            setTimeout(() => {
+                switch(animationType) {
+                    case 'hideUnderTable':
+                        character.style.transform = 'translate(-200px, 20px) scale(0.7)';
+                        character.textContent = '🙇';
+                        if (effects) {
+                            effects.textContent = '💨';
+                            effects.style.opacity = '0.5';
+                        }
+                        break;
+                        
+                    case 'runToDoor':
+                        character.style.transform = 'translate(-50%, -120px)';
+                        character.textContent = '🏃';
+                        if (effects) {
+                            effects.textContent = '💨';
+                            effects.style.opacity = '0.3';
+                        }
+                        break;
+                        
+                    case 'standInDoorway':
+                        character.style.transform = 'translate(-50%, -120px)';
+                        character.textContent = '🧍';
+                        break;
+                        
+                    case 'usePhone':
+                        character.textContent = '📱';
+                        if (effects) {
+                            effects.textContent = '📞';
+                            effects.style.opacity = '0.6';
+                        }
+                        break;
+                        
+                    case 'lookAround':
+                        character.textContent = '👀';
+                        character.style.transform = 'translate(-50%, 0) rotate(15deg)';
+                        setTimeout(() => {
+                            character.style.transform = 'translate(-50%, 0) rotate(-15deg)';
+                        }, 500);
+                        break;
+                        
+                    case 'moveToWindow':
+                        character.style.transform = 'translate(100px, -120px)';
+                        character.textContent = '🧍';
+                        break;
+                        
+                    case 'moveAway':
+                        character.style.transform = 'translate(-300px, 0)';
+                        character.textContent = '🚶';
+                        if (effects) {
+                            effects.textContent = '➡️';
+                            effects.style.opacity = '0.4';
+                        }
+                        break;
+                        
+                    case 'signalHelp':
+                        character.textContent = '🙋';
+                        if (effects) {
+                            effects.textContent = '🆘';
+                            effects.style.opacity = '0.8';
+                        }
+                        break;
+                        
+                    case 'standNormal':
+                        character.textContent = '🧍';
+                        break;
+                        
+                    default:
+                        character.textContent = '🧍';
+                }
+            }, 100);
+        }
+
+        function startDrill(drillType) {
+            currentDrill = drillType;
+            currentScenarioIndex = 0;
+            const drill = drills[drillType];
+            
+            document.getElementById('drillTitle').textContent = drill.title;
+            document.querySelector('section:nth-of-type(2)').classList.add('hidden');
+            document.getElementById('drillArea').classList.remove('hidden');
+            document.getElementById('completionArea').classList.add('hidden');
+            
+            drillTime = 0;
+            drillScore = 0;
+            updateScore();
+            startTimer();
+            
+            // Setup game area based on drill type
+            setupGameArea(drill);
+            
+            loadScenario();
+        }
+
+        function setupGameArea(drill) {
+            const gameArea = document.getElementById('gameArea');
+            const player = document.getElementById('player');
+            
+            // Reset player
+            player.textContent = drill.character;
+            player.style.left = '50%';
+            player.style.top = '50%';
+            player.style.transform = 'translate(-50%, -50%)';
+            
+            if (drill.gameType === 'drag-drop') {
+                const config = drill.gameConfig;
+                
+                // Update instruction
+                gameArea.querySelector('.absolute.bottom-2').textContent = config.instruction;
+                
+                const safeSpot = document.getElementById('safeSpot');
+                safeSpot.textContent = config.safeSpot.emoji;
+                safeSpot.title = config.safeSpot.title;
+                safeSpot.classList.remove('bg-green-600', 'bg-brown-600', 'bg-green-700');
+                safeSpot.classList.add('bg-gray-600'); // Same color as unsafe spots initially
+                
+                config.unsafeSpots.forEach((spot, index) => {
+                    const unsafeSpot = document.getElementById(`unsafeSpot${index + 1}`);
+                    if (unsafeSpot) {
+                        unsafeSpot.textContent = spot.emoji;
+                        unsafeSpot.title = spot.title;
+                        unsafeSpot.classList.remove('bg-red-600');
+                        unsafeSpot.classList.add('bg-gray-600'); // Same color as safe spot
+                    }
+                });
+                
+                // Store current config for drag-drop logic
+                window.currentGameConfig = config;
+            }
+        }
+
+        function loadScenario() {
+            const drillContent = document.getElementById('drillContent');
+            drillContent.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-2xl font-semibold mb-4">Practice the ${drills[currentDrill].title}</h3>
+                    <p class="text-gray-300 mb-6">Use the interactive game above to practice the correct response!</p>
+                    <button onclick="resetDragGame()" 
+                            class="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Reset Game
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectOption(optionIndex) {
+            // This function is no longer needed
+        }
+
+        function showFeedback(feedback, isCorrect) {
+            // This function is no longer needed
+        }
+
+        function nextScenario() {
+            // This function is no longer needed
+        }
+
+        function completeDrill() {
+            clearInterval(drillTimer);
+            
+            document.getElementById('drillArea').classList.add('hidden');
+            document.getElementById('completionArea').classList.remove('hidden');
+            
+            const drill = drills[currentDrill];
+            document.getElementById('completionTitle').textContent = `You've completed the ${drill.title}!`;
+            
+            // Re-initialize Lucide icons
+            lucide.createIcons();
+        }
+
+        function startTimer() {
+            drillTimer = setInterval(() => {
+                drillTime++;
+                const minutes = Math.floor(drillTime / 60);
+                const seconds = drillTime % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = drillScore;
+        }
+
+        // Event listeners
+        document.getElementById('backToDrills').addEventListener('click', () => {
+            clearInterval(drillTimer);
+            document.getElementById('drillArea').classList.add('hidden');
+            document.querySelector('section:nth-of-type(2)').classList.remove('hidden');
+        });
+
+        document.getElementById('restartDrill').addEventListener('click', () => {
+            if (currentDrill) {
+                clearInterval(drillTimer);
+                startDrill(currentDrill);
+            }
+        });
+
+        document.getElementById('tryAnotherDrill').addEventListener('click', () => {
+            document.getElementById('completionArea').classList.add('hidden');
+            document.querySelector('section:nth-of-type(2)').classList.remove('hidden');
+        });
+
+        document.getElementById('goToResources').addEventListener('click', () => {
+            window.location.href = 'index.html#resources';
+        });
+
+        let isDragging = false;
+        let gameCompleted = false;
+
+        function initializeDragAndDrop() {
+            const player = document.getElementById('player');
+            const gameArea = document.getElementById('gameArea');
+
+            let dragStartX, dragStartY;
+
+            player.addEventListener('dragstart', (e) => {
+                isDragging = true;
+                const rect = player.getBoundingClientRect();
+                const gameRect = gameArea.getBoundingClientRect();
+                dragStartX = e.clientX - rect.left;
+                dragStartY = e.clientY - rect.top;
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            player.addEventListener('dragend', (e) => {
+                isDragging = false;
+            });
+
+            // Make game area accept drops
+            gameArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            gameArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (!isDragging || !window.currentGameConfig) return;
+
+                const gameRect = gameArea.getBoundingClientRect();
+                const dropX = e.clientX - gameRect.left - dragStartX;
+                const dropY = e.clientY - gameRect.top - dragStartY;
+
+                const config = window.currentGameConfig;
+                
+                // Check if dropped on safe spot
+                const safeSpot = document.getElementById('safeSpot');
+                const safeRect = safeSpot.getBoundingClientRect();
+                const playerRect = {
+                    left: e.clientX - dragStartX,
+                    right: e.clientX - dragStartX + 48,
+                    top: e.clientY - dragStartY,
+                    bottom: e.clientY - dragStartY + 48
+                };
+
+                if (isOverlapping(playerRect, safeRect)) {
+                    player.style.left = (safeSpot.offsetLeft + safeSpot.offsetWidth / 2 - player.offsetWidth / 2) + 'px';
+                    player.style.top = (safeSpot.offsetTop + safeSpot.offsetHeight / 2 - player.offsetHeight / 2) + 'px';
+                    showGameMessage(config.correctMessage, "success");
+                    safeSpot.classList.remove('bg-gray-600');
+                    safeSpot.classList.add('bg-green-600');
+                    gameCompleted = true;
+                    drillScore += 100;
+                    updateScore();
+                } else {
+                    // Check if dropped on unsafe spots
+                    let droppedOnUnsafe = false;
+                    config.unsafeSpots.forEach((spot, index) => {
+                        const unsafeSpot = document.getElementById(`unsafeSpot${index + 1}`);
+                        if (unsafeSpot) {
+                            const spotRect = unsafeSpot.getBoundingClientRect();
+                            if (isOverlapping(playerRect, spotRect)) {
+                                droppedOnUnsafe = true;
+                                unsafeSpot.classList.remove('bg-gray-600');
+                                unsafeSpot.classList.add('bg-red-600');
+                                safeSpot.classList.remove('bg-gray-600');
+                                safeSpot.classList.add('bg-green-600');
+                                showGameMessage(config.incorrectMessage, "error");
+                                // Move player to the wrong spot they chose
+                                player.style.left = (unsafeSpot.offsetLeft + unsafeSpot.offsetWidth / 2 - player.offsetWidth / 2) + 'px';
+                                player.style.top = (unsafeSpot.offsetTop + unsafeSpot.offsetHeight / 2 - player.offsetHeight / 2) + 'px';
+                            }
+                        }
+                    });
+
+                    if (!droppedOnUnsafe) {
+                        // Dropped in empty space
+                        player.style.left = Math.max(0, Math.min(dropX, gameArea.offsetWidth - player.offsetWidth)) + 'px';
+                        player.style.top = Math.max(0, Math.min(dropY, gameArea.offsetHeight - player.offsetHeight)) + 'px';
+                        showGameMessage("Try dragging to one of the objects in the room!", "info");
+                    }
+                }
+            });
+
+            // Reset game function
+            window.resetDragGame = function() {
+                player.style.left = '50%';
+                player.style.top = '50%';
+                player.style.transform = 'translate(-50%, -50%)';
+                
+                const safeSpot = document.getElementById('safeSpot');
+                safeSpot.classList.remove('bg-green-600');
+                safeSpot.classList.add('bg-gray-600');
+                
+                // Reset unsafe spots
+                for (let i = 1; i <= 3; i++) {
+                    const unsafeSpot = document.getElementById(`unsafeSpot${i}`);
+                    if (unsafeSpot) {
+                        unsafeSpot.classList.remove('bg-red-600');
+                        unsafeSpot.classList.add('bg-gray-600');
+                    }
+                }
+                
+                hideGameMessage();
+                gameCompleted = false;
+            };
+        }
+
+        // Initialize drag and drop when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDragAndDrop();
+        });
+
+        function showGameMessage(message, type) {
+            const gameMessage = document.getElementById('gameMessage');
+            const messageText = document.getElementById('messageText');
+            
+            messageText.textContent = message;
+            gameMessage.classList.remove('hidden');
+            
+            gameMessage.classList.remove('bg-green-900/70', 'bg-red-900/70', 'bg-blue-900/70');
+            if (type === 'success') {
+                gameMessage.classList.add('bg-green-900/70');
+            } else if (type === 'error') {
+                gameMessage.classList.add('bg-red-900/70');
+            } else {
+                gameMessage.classList.add('bg-blue-900/70');
+            }
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                hideGameMessage();
+            }, 3000);
+        }
+
+        function hideGameMessage() {
+            const gameMessage = document.getElementById('gameMessage');
+            gameMessage.classList.add('hidden');
+        }
+
+        function isOverlapping(rect1, rect2) {
+            return !(rect1.right < rect2.left || 
+                    rect1.left > rect2.right || 
+                    rect1.bottom < rect2.top || 
+                    rect1.top > rect2.bottom);
+        }
+    </script>
+</body>
+</html>

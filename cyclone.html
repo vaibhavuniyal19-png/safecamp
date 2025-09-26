@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclone Safety - DisasterHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="/" class="flex items-center space-x-2">
+                        <i data-lucide="shield" class="h-8 w-8 text-white"></i>
+                        <span class="text-xl font-bold">DisasterHub</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-300 hover:text-white transition-colors">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="absolute inset-0 bg-gradient-to-b from-teal-900/50 to-black"></div>
+        
+        <div class="relative max-w-7xl mx-auto text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-teal-900 to-teal-700 rounded-lg flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-wind text-white text-2xl"></i>
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Cyclone Preparedness</h1>
+            <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Learn about hurricane and cyclone preparedness, tracking systems, and comprehensive safety measures.
+            </p>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Before Cyclone -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-6 text-teal-400">Before a Cyclone</h2>
+                <div class="space-y-4 text-gray-300">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-check-circle text-teal-400 mt-1"></i>
+                        <p>Monitor weather forecasts and official cyclone tracking updates</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-check-circle text-teal-400 mt-1"></i>
+                        <p>Prepare emergency supplies: water, food, medications, flashlights</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-check-circle text-teal-400 mt-1"></i>
+                        <p>Secure your home: board windows, clear gutters, trim trees</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-check-circle text-teal-400 mt-1"></i>
+                        <p>Know your evacuation zone and routes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- During Cyclone -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-6 text-red-400">During a Cyclone</h2>
+                <div class="space-y-4 text-gray-300">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+                        <p>Follow evacuation orders immediately - don't wait</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+                        <p>Stay in the strongest part of your building, away from windows</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+                        <p>Beware of the eye - winds will return from opposite direction</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-triangle text-red-400 mt-1"></i>
+                        <p>Stay indoors until authorities declare it safe to go outside</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cyclone Categories -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-6 text-yellow-400">Cyclone Categories</h2>
+                <div class="space-y-4 text-gray-300">
+                    <div class="flex items-start space-x-3">
+                        <span class="text-green-400 font-bold">Cat 1:</span>
+                        <p>74-95 mph winds - Minimal damage, some power outages</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-yellow-400 font-bold">Cat 2:</span>
+                        <p>96-110 mph winds - Moderate damage, extensive power outages</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-orange-400 font-bold">Cat 3:</span>
+                        <p>111-129 mph winds - Extensive damage, major power outages</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-red-400 font-bold">Cat 4:</span>
+                        <p>130-156 mph winds - Extreme damage, long-term power outages</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-purple-400 font-bold">Cat 5:</span>
+                        <p>157+ mph winds - Catastrophic damage, complete power failure</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- After Cyclone -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-6 text-green-400">After a Cyclone</h2>
+                <div class="space-y-4 text-gray-300">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-info-circle text-green-400 mt-1"></i>
+                        <p>Wait for official all-clear before leaving shelter</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-info-circle text-green-400 mt-1"></i>
+                        <p>Avoid flooded roads and downed power lines</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-info-circle text-green-400 mt-1"></i>
+                        <p>Document damage with photos for insurance claims</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-info-circle text-green-400 mt-1"></i>
+                        <p>Be patient - recovery and restoration take time</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contacts -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8">
+                <h2 class="text-3xl font-bold mb-6 text-blue-400">Emergency Contacts</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Emergency Services</h3>
+                        <p class="text-gray-300">Emergency: <span class="text-white font-bold">911</span></p>
+                        <p class="text-gray-300">Coast Guard: <span class="text-white font-bold">*CG</span></p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Hurricane Information</h3>
+                        <p class="text-gray-300">National Hurricane Center</p>
+                        <p class="text-gray-300">Local Emergency Management</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-8">
+                <h2 class="text-3xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-brain text-purple-400 mr-3"></i>
+                    Test Your Knowledge
+                </h2>
+                <div id="quizContainer">
+                    <div id="question" class="text-xl mb-6"></div>
+                    <div id="options" class="space-y-3 mb-6"></div>
+                    <div class="flex justify-between items-center">
+                        <div id="score" class="text-gray-300"></div>
+                        <button id="nextQuestion" class="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== "undefined" && lucide.createIcons) {
+            lucide.createIcons();
+        }
+
+        // Quiz data for cyclone safety
+        const quizData = [
+            {
+                question: "What should you do when a cyclone evacuation order is issued?",
+                options: ["Wait to see how bad it gets", "Leave immediately", "Secure your home first", "Stay and ride it out"],
+                correct: 1
+            },
+            {
+                question: "What is the most dangerous part of a cyclone's eye?",
+                options: ["The center is always calm", "Winds return from opposite direction", "It never ends", "It's the safest part"],
+                correct: 1
+            },
+            {
+                question: "Which cyclone category has winds of 130-156 mph?",
+                options: ["Category 2", "Category 3", "Category 4", "Category 5"],
+                correct: 2
+            },
+            {
+                question: "When is it safe to go outside after a cyclone?",
+                options: ["When winds die down", "After official all-clear", "When rain stops", "After 6 hours"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index, button);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('score').textContent = `Score: ${score}/${quizData.length}`;
+            document.getElementById('nextQuestion').style.display = 'none';
+            answered = false;
+        }
+
+        function selectAnswer(selectedIndex, button) {
+            if (answered) return;
+            
+            answered = true;
+            const question = quizData[currentQuestion];
+            const options = document.querySelectorAll('#options button');
+            
+            options.forEach((opt, index) => {
+                if (index === question.correct) {
+                    opt.classList.add('bg-green-600');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    opt.classList.add('bg-red-600');
+                }
+                opt.disabled = true;
+            });
+            
+            if (selectedIndex === question.correct) {
+                score++;
+            }
+            
+            document.getElementById('nextQuestion').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4">Quiz Complete!</h3>
+                    <div class="text-4xl font-bold mb-4 ${score >= 3 ? 'text-green-400' : 'text-yellow-400'}">
+                        ${score}/${quizData.length}
+                    </div>
+                    <p class="text-gray-300 mb-6">
+                        ${score >= 3 ? 'Excellent! You\'re well-prepared for cyclones.' : 'Good effort! Review the material and try again.'}
+                    </p>
+                    <button onclick="restartQuiz()" class="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Restart Quiz
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('quizContainer').innerHTML = `
+                <div id="question" class="text-xl mb-6"></div>
+                <div id="options" class="space-y-3 mb-6"></div>
+                <div class="flex justify-between items-center">
+                    <div id="score" class="text-gray-300"></div>
+                    <button id="nextQuestion" class="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        Next Question
+                    </button>
+                </div>
+            `;
+            document.getElementById('nextQuestion').onclick = nextQuestion;
+            loadQuestion();
+        }
+
+        // Initialize quiz
+        document.getElementById('nextQuestion').onclick = nextQuestion;
+        loadQuestion();
+    </script>
+</body>
+</html>

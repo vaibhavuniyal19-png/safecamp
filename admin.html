@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - DisasterGuard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover { background-color: rgba(55, 65, 81, 0.5); }
+        .sidebar-item.active { background-color: rgba(59, 130, 246, 0.1); border-right: 3px solid #3b82f6; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .modal { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <div class="flex h-screen">
+         Sidebar 
+        <div class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+             Logo 
+            <div class="p-6 border-b border-gray-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">DisasterGuard</h1>
+                        <p class="text-sm text-gray-400">Admin Panel</p>
+                    </div>
+                </div>
+            </div>
+
+             Navigation 
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <button class="sidebar-item active w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="dashboard">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                            <span>Dashboard</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="alerts">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            <span>Alert Management</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="users">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                            <span>User Management</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="content">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                            <span>Content Management</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="analytics">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                            <span>Analytics</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3" data-section="settings">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                            <span>Settings</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+             Admin Info 
+            <div class="p-4 border-t border-gray-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Admin User</p>
+                        <p class="text-sm text-gray-400">admin@disasterguard.com</p>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="w-full mt-3 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition-colors">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+         Main Content 
+        <div class="flex-1 flex flex-col overflow-hidden">
+             Header 
+            <header class="bg-gray-900 border-b border-gray-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 id="pageTitle" class="text-2xl font-bold">Dashboard Overview</h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>New Alert</span>
+                        </button>
+                        <div class="relative">
+                            <button class="p-2 text-gray-400 hover:text-white transition-colors">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                            </button>
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+             Content Area 
+            <main class="flex-1 overflow-y-auto p-6">
+                 Dashboard Section 
+                <div id="dashboard-section" class="section">
+                     Stats Cards 
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Active Alerts</p>
+                                    <p class="text-3xl font-bold text-red-400">3</p>
+                                </div>
+                                <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-red-400">+2</span>
+                                <span class="text-gray-400 ml-1">from yesterday</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Users</p>
+                                    <p class="text-3xl font-bold text-blue-400">12,847</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-400">+156</span>
+                                <span class="text-gray-400 ml-1">this week</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Quiz Completions</p>
+                                    <p class="text-3xl font-bold text-green-400">2,341</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-400">+89</span>
+                                <span class="text-gray-400 ml-1">today</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">System Health</p>
+                                    <p class="text-3xl font-bold text-green-400">99.9%</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="activity" class="w-6 h-6 text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-400">Excellent</span>
+                                <span class="text-gray-400 ml-1">uptime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                     Charts Row 
+                    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <h3 class="text-xl font-bold mb-4">Alert Trends</h3>
+                            <canvas id="alertChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <h3 class="text-xl font-bold mb-4">User Activity</h3>
+                            <canvas id="activityChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                     Recent Activity 
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg">
+                                <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">New earthquake alert issued</p>
+                                    <p class="text-sm text-gray-400">Magnitude 4.2 detected in San Francisco Bay Area</p>
+                                </div>
+                                <span class="text-sm text-gray-400">2 hours ago</span>
+                            </div>
+                            <div class="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg">
+                                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="user-plus" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">156 new users registered</p>
+                                    <p class="text-sm text-gray-400">Weekly registration milestone reached</p>
+                                </div>
+                                <span class="text-sm text-gray-400">4 hours ago</span>
+                            </div>
+                            <div class="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg">
+                                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">System maintenance completed</p>
+                                    <p class="text-sm text-gray-400">All services restored to full capacity</p>
+                                </div>
+                                <span class="text-sm text-gray-400">6 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 Alert Management Section 
+                <div id="alerts-section" class="section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold">Alert Management</h3>
+                        <button id="createAlertBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Create Alert</span>
+                        </button>
+                    </div>
+
+                     Alert Filters 
+                    <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6">
+                        <div class="grid md:grid-cols-4 gap-4">
+                            <select class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                                <option>All Types</option>
+                                <option>Earthquake</option>
+                                <option>Flood</option>
+                                <option>Wildfire</option>
+                                <option>Weather</option>
+                            </select>
+                            <select class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                                <option>All Severities</option>
+                                <option>Low</option>
+                                <option>Moderate</option>
+                                <option>High</option>
+                                <option>Critical</option>
+                            </select>
+                            <select class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                                <option>All Status</option>
+                                <option>Active</option>
+                                <option>Resolved</option>
+                                <option>Draft</option>
+                            </select>
+                            <input type="text" placeholder="Search alerts..." class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                        </div>
+                    </div>
+
+                     Alerts Table 
+                    <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Alert</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Type</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Severity</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Location</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Created</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800">
+                                    <tr class="hover:bg-gray-800 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div>
+                                                <p class="font-medium">Earthquake Alert</p>
+                                                <p class="text-sm text-gray-400">Magnitude 4.2 detected</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-700 text-gray-300">
+                                                Earthquake
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-orange-900 text-orange-300">
+                                                MODERATE
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-300">San Francisco Bay</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-900 text-red-300">
+                                                ACTIVE
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-400">2 hours ago</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex space-x-2">
+                                                <button class="text-blue-400 hover:text-blue-300">Edit</button>
+                                                <button class="text-red-400 hover:text-red-300">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     More rows would be populated dynamically 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                 User Management Section 
+                <div id="users-section" class="section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold">User Management</h3>
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>Add User</span>
+                        </button>
+                    </div>
+
+                     User Stats 
+                    <div class="grid md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <h4 class="text-lg font-semibold mb-2">Total Users</h4>
+                            <p class="text-3xl font-bold text-blue-400">12,847</p>
+                            <p class="text-sm text-gray-400 mt-2">+156 this week</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <h4 class="text-lg font-semibold mb-2">Active Users</h4>
+                            <p class="text-3xl font-bold text-green-400">8,923</p>
+                            <p class="text-sm text-gray-400 mt-2">69% of total</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                            <h4 class="text-lg font-semibold mb-2">New Registrations</h4>
+                            <p class="text-3xl font-bold text-yellow-400">234</p>
+                            <p class="text-sm text-gray-400 mt-2">This month</p>
+                        </div>
+                    </div>
+
+                     Users Table 
+                    <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+                        <div class="p-6 border-b border-gray-800">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-semibold">User List</h4>
+                                <input type="text" placeholder="Search users..." class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">User</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Email</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Location</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Joined</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
+                                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800">
+                                    <tr class="hover:bg-gray-800 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                                    <span class="text-sm font-medium">JD</span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium">John Doe</p>
+                                                    <p class="text-sm text-gray-400">ID: #12847</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-300">john.doe@email.com</td>
+                                        <td class="px-6 py-4 text-sm text-gray-300">San Francisco, CA</td>
+                                        <td class="px-6 py-4 text-sm text-gray-400">Jan 15, 2024</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-900 text-green-300">
+                                                ACTIVE
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex space-x-2">
+                                                <button class="text-blue-400 hover:text-blue-300">View</button>
+                                                <button class="text-yellow-400 hover:text-yellow-300">Edit</button>
+                                                <button class="text-red-400 hover:text-red-300">Suspend</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                     More rows would be populated dynamically 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                 Other sections would be implemented similarly 
+                <div id="content-section" class="section hidden">
+                    <h3 class="text-2xl font-bold mb-6">Content Management</h3>
+                    <p class="text-gray-400">Content management features would be implemented here.</p>
+                </div>
+
+                <div id="analytics-section" class="section hidden">
+                    <h3 class="text-2xl font-bold mb-6">Analytics</h3>
+                    <p class="text-gray-400">Analytics and reporting features would be implemented here.</p>
+                </div>
+
+                <div id="settings-section" class="section hidden">
+                    <h3 class="text-2xl font-bold mb-6">System Settings</h3>
+                    <p class="text-gray-400">System configuration and settings would be implemented here.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+     Create Alert Modal 
+    <div id="createAlertModal" class="modal hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Create New Alert</h2>
+                <button id="closeCreateAlert" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <form id="createAlertForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Alert Type</label>
+                        <select class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                            <option>Earthquake</option>
+                            <option>Flood</option>
+                            <option>Wildfire</option>
+                            <option>Severe Weather</option>
+                            <option>Volcanic</option>
+                            <option>Cyclone</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Severity Level</label>
+                        <select class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white">
+                            <option>Low</option>
+                            <option>Moderate</option>
+                            <option>High</option>
+                            <option>Critical</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Alert Title</label>
+                    <input type="text" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white" placeholder="Enter alert title">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Alert Message</label>
+                    <textarea rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white" placeholder="Enter detailed alert message"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Affected Areas</label>
+                    <input type="text" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white" placeholder="Enter locations (comma-separated)">
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelCreateAlert" class="bg-gray-800 hover:bg-gray-700 px-6 py-2 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg transition-colors">
+                        Create Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Admin dashboard state
+        let currentSection = 'dashboard';
+
+        // Initialize the admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            initializeCharts();
+            
+            // Check authentication
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+
+        function setupEventListeners() {
+            // Sidebar navigation
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const section = item.dataset.section;
+                    switchSection(section);
+                });
+            });
+
+            // Modal controls
+            document.getElementById('createAlertBtn').addEventListener('click', openCreateAlertModal);
+            document.getElementById('closeCreateAlert').addEventListener('click', closeCreateAlertModal);
+            document.getElementById('cancelCreateAlert').addEventListener('click', closeCreateAlertModal);
+            document.getElementById('createAlertForm').addEventListener('submit', handleCreateAlert);
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        }
+
+        function switchSection(sectionName) {
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).classList.remove('hidden');
+
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard Overview',
+                alerts: 'Alert Management',
+                users: 'User Management',
+                content: 'Content Management',
+                analytics: 'Analytics',
+                settings: 'System Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+
+            currentSection = sectionName;
+        }
+
+        function initializeCharts() {
+            // Alert Trends Chart
+            const alertCtx = document.getElementById('alertChart').getContext('2d');
+            new Chart(alertCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Alerts Issued',
+                        data: [12, 19, 8, 15, 22, 18],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d1d5db'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // User Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Active Users',
+                        data: [1200, 1900, 800, 1500, 2200, 1800, 1400],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d1d5db'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function openCreateAlertModal() {
+            document.getElementById('createAlertModal').classList.remove('hidden');
+        }
+
+        function closeCreateAlertModal() {
+            document.getElementById('createAlertModal').classList.add('hidden');
+            document.getElementById('createAlertForm').reset();
+        }
+
+        function handleCreateAlert(e) {
+            e.preventDefault();
+            
+            // In a real application, this would save to Firebase
+            const formData = new FormData(e.target);
+            const alertData = {
+                type: formData.get('type'),
+                severity: formData.get('severity'),
+                title: formData.get('title'),
+                message: formData.get('message'),
+                areas: formData.get('areas'),
+                timestamp: new Date(),
+                status: 'active'
+            };
+            
+            console.log('Creating alert:', alertData);
+            
+            // Close modal and show success message
+            closeCreateAlertModal();
+            showNotification('Alert created successfully', 'success');
+        }
+
+        function showNotification(message, type) {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // Update stats with random variations
+            const activeAlerts = document.querySelector('.stat-card .text-red-400');
+            if (activeAlerts) {
+                const current = parseInt(activeAlerts.textContent);
+                const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                activeAlerts.textContent = Math.max(0, current + variation);
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

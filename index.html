@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DisasterHub - Disaster Management Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Replaced Lucide with Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_kMEMNCAxhnh3KcFmAOv2KTJg62oMDgI",
+            authDomain: "safecampus-69c4a.firebaseapp.com",
+            projectId: "safecampus-69c4a",
+            storageBucket: "safecampus-69c4a.firebasestorage.app",
+            messagingSenderId: "902914794613",
+            appId: "1:902914794613:web:9aa5e5d9361520a170443c"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebase = { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, collection, addDoc, getDocs, query, orderBy, limit };
+    </script>
+    
+    <style>
+        .hero-bg {
+            background-image: url('/public/dramatic-stormy-clouds-and-lightning-black-and-whi.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Enhanced 3D card animations and advanced styling */
+        .card-3d {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .card-3d:hover {
+            transform: rotateY(10deg) rotateX(5deg) translateZ(20px);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .card-3d:hover .card-inner {
+            transform: translateZ(30px);
+        }
+        
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-card:nth-child(2n) {
+            animation-delay: -2s;
+        }
+        
+        .floating-card:nth-child(3n) {
+            animation-delay: -4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+            25% { transform: translateY(-10px) rotateZ(1deg); }
+            50% { transform: translateY(-5px) rotateZ(0deg); }
+            75% { transform: translateY(-15px) rotateZ(-1deg); }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg) translate(-100%, -100%);
+            transition: transform 0.6s;
+            /* Prevent glow effect from blocking clicks */
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .glow-effect:hover::before {
+            transform: rotate(45deg) translate(100%, 100%);
+        }
+        
+        .morphing-bg {
+            background: linear-gradient(-45deg, #1a1a1a, #2d2d2d, #1a1a1a, #404040);
+            background-size: 400% 400%;
+            animation: morphing 8s ease-in-out infinite;
+        }
+        
+        @keyframes morphing {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.1); }
+        }
+        
+        .slide-in-3d {
+            animation: slideIn3D 1s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        @keyframes slideIn3D {
+            from { 
+                opacity: 0; 
+                transform: translateX(-100px) rotateY(-90deg);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0) rotateY(0deg);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(60px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .icon-3d {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .card-3d:hover .icon-3d {
+            transform: rotateY(180deg) scale(1.2);
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .border-glow {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-earthquake { 
+            background: linear-gradient(135deg, #1f2937, #374151, #4b5563); 
+            position: relative;
+        }
+        .gradient-flood { 
+            background: linear-gradient(135deg, #1e3a8a, #1d4ed8, #3b82f6); 
+            position: relative;
+        }
+        .gradient-wildfire { 
+            background: linear-gradient(135deg, #7f1d1d, #dc2626, #ef4444); 
+            position: relative;
+        }
+        .gradient-volcanic { 
+            background: linear-gradient(135deg, #9a3412, #ea580c, #f97316); 
+            position: relative;
+        }
+        .gradient-thunderstorm { 
+            background: linear-gradient(135deg, #581c87, #7c3aed, #8b5cf6); 
+            position: relative;
+        }
+        .gradient-cyclone { 
+            background: linear-gradient(135deg, #134e4a, #0d9488, #14b8a6); 
+            position: relative;
+        }
+        
+        .nav-glass {
+            backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Enhanced button styling to ensure clickability */
+        .button-3d {
+            transform: translateZ(0);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+            /* Ensure buttons are always clickable */
+            pointer-events: auto !important;
+            cursor: pointer;
+            z-index: 10;
+            isolation: isolate;
+        }
+        
+        .button-3d:hover {
+            transform: translateY(-2px) scale(1.05) translateZ(0);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .button-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+            /* Prevent shine effect from blocking clicks */
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .button-3d:hover::before {
+            left: 100%;
+        }
+        
+        /* Specific button container styling */
+        .button-container {
+            position: relative;
+            z-index: 15;
+            pointer-events: auto;
+        }
+        
+        /* Ensure card content doesn't interfere with buttons */
+        .card-content {
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* Button specific overrides */
+        .learn-more-btn, .quiz-btn {
+            position: relative;
+            z-index: 20 !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            isolation: isolate;
+        }
+        
+        .learn-more-btn:hover, .quiz-btn:hover {
+            transform: translateY(-1px) scale(1.02) !important;
+            z-index: 25 !important;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <!-- Replaced Lucide shield with Font Awesome -->
+                    <i class="fas fa-shield-alt h-8 w-8 text-white icon-3d text-2xl"></i>
+                    <span class="text-xl font-bold text-glow">DisasterHub</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#modules" class="text-gray-300 hover:text-white transition-colors hover:text-glow">Modules</a>
+                    <a href="#resources" class="text-gray-300 hover:text-white transition-colors hover:text-glow">Resources</a>
+                    <a href="#alerts" class="text-gray-300 hover:text-white transition-colors hover:text-glow">Alerts</a>
+                    <a href="#helpline" class="text-gray-300 hover:text-white transition-colors hover:text-glow">Helpline Numbers</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="languageToggle" class="text-gray-300 hover:text-white px-3 py-1 rounded button-3d">
+                        हिंदी
+                    </button>
+                    <button id="authButton" class="border border-white/20 text-white hover:bg-white hover:text-black bg-transparent px-4 py-2 rounded transition-colors button-3d">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-black"></div>
+        <div class="absolute inset-0 opacity-20 hero-bg"></div>
+
+        <div class="relative max-w-7xl mx-auto text-center fade-in-up">
+            <div class="inline-flex items-center px-4 py-2 rounded-full border-glow text-white mb-6 pulse-glow">
+                <!-- Replaced Lucide globe with Font Awesome -->
+                <i class="fas fa-globe w-4 h-4 mr-2 icon-3d"></i>
+                <span id="platformBadge">Disaster Management Platform</span>
+            </div>
+
+            <h1 id="heroTitle" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-glow">Disaster Management Hub</h1>
+
+            <p id="heroSubtitle" class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Empowering communities through education, preparation, and rapid response to natural disasters.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button id="ctaButton" class="bg-white text-black hover:bg-gray-200 px-8 py-3 rounded-lg font-semibold transition-colors button-3d">
+                    Start Learning
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Principles -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 morphing-bg">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="principlesTitle" class="text-3xl md:text-4xl font-bold mb-4 text-glow">Our Core Principles</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8 slide-in-3d">
+                    <div class="flex items-start space-x-4 card-3d floating-card p-6 rounded-lg border-glow">
+                        <div class="flex-shrink-0 w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center font-bold text-xl icon-3d">
+                            1
+                        </div>
+                        <div>
+                            <h3 id="principle1" class="text-xl font-semibold mb-2">Education</h3>
+                            <p id="principle1Desc" class="text-gray-300">Comprehensive disaster education and awareness programs for all communities.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 card-3d floating-card p-6 rounded-lg border-glow">
+                        <div class="flex-shrink-0 w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center font-bold text-xl icon-3d">
+                            2
+                        </div>
+                        <div>
+                            <h3 id="principle2" class="text-xl font-semibold mb-2">Preparedness</h3>
+                            <p id="principle2Desc" class="text-gray-300">Preparation strategies and emergency response protocols.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <img src="/public/emergency-response-team-coordination-black-and-whi.jpg" alt="Emergency Response" class="rounded-lg shadow-2xl card-3d glow-effect">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disaster Categories -->
+    <section id="modules" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="featuresTitle" class="text-3xl md:text-4xl font-bold mb-4 text-glow">Comprehensive Disaster Preparedness</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Interactive modules covering all major disaster types with educational content, quizzes, and virtual drills.
+                </p>
+            </div>
+
+            <div id="disasterGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Virtual Drill Card (First Card) -->
+                <div class="card-3d floating-card glow-effect morphing-bg border-glow rounded-lg p-6 cursor-pointer group">
+                    <div class="card-inner">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-900 to-purple-700 rounded-lg flex items-center justify-center mb-6 icon-3d">
+                            <!-- Replaced Lucide gamepad with Font Awesome -->
+                            <i class="fas fa-gamepad w-8 h-8 text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-glow">Virtual Drill</h3>
+                        <p class="text-gray-300 mb-6">Practice emergency response through interactive simulations and realistic scenarios.</p>
+                        <a href="drills.html" class="bg-white text-black hover:bg-gray-200 px-6 py-3 rounded-lg font-semibold transition-colors inline-block w-full text-center button-3d">
+                            Start Virtual Drills
+                        </a>
+                    </div>
+                </div>
+                <!-- Disaster cards will be populated by JavaScript -->
+            </div>
+            
+            <!-- Updated Virtual Drills section -->
+            <div class="text-center mt-16">
+                <div class="card-3d floating-card morphing-bg border-glow rounded-lg p-8 glow-effect">
+                    <div class="card-inner">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-900 to-purple-700 rounded-lg flex items-center justify-center mx-auto mb-6 icon-3d">
+                            <!-- Replaced Lucide gamepad with Font Awesome -->
+                            <i class="fas fa-gamepad w-8 h-8 text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-glow">Virtual Drills</h3>
+                        <p class="text-gray-300 mb-6">Practice emergency response through interactive simulations and realistic scenarios.</p>
+                        <a href="drills.html" class="bg-white text-black hover:bg-gray-200 px-8 py-3 rounded-lg font-semibold transition-colors inline-block button-3d">
+                            Start Virtual Drills
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section id="resources" class="py-20 px-4 sm:px-6 lg:px-8 morphing-bg">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="resourcesTitle" class="text-3xl md:text-4xl font-bold mb-4 text-glow">Resources & Downloads</h2>
+                <p id="resourcesDesc" class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Download comprehensive guides, helpline numbers, and quiz materials for offline access.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card-3d floating-card border-glow rounded-lg p-6 glow-effect">
+                    <div class="card-inner">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg flex items-center justify-center mb-4 icon-3d">
+                            <!-- Replaced Lucide file-text with Font Awesome -->
+                            <i class="fas fa-file-alt w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 id="emergencyGuideTitle" class="text-xl font-semibold mb-2 text-glow">Emergency Guide</h3>
+                        <p id="emergencyGuideDesc" class="text-gray-400 mb-4">Complete disaster preparedness handbook with all essential information.</p>
+                        <button id="downloadPDF" class="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded transition-colors w-full button-3d">
+                            <!-- Replaced Lucide download with Font Awesome -->
+                            <i class="fas fa-download w-4 h-4 mr-2 inline"></i>
+                            <span id="downloadText">Download PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-3d floating-card border-glow rounded-lg p-6 glow-effect">
+                    <div class="card-inner">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-900 to-green-700 rounded-lg flex items-center justify-center mb-4 icon-3d">
+                            <!-- Replaced Lucide phone with Font Awesome -->
+                            <i class="fas fa-phone w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 id="helplineGuideTitle" class="text-xl font-semibold mb-2 text-glow">Helpline Directory</h3>
+                        <p id="helplineGuideDesc" class="text-gray-400 mb-4">All emergency contact numbers and helpline information.</p>
+                        <a href="helpline.html" class="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded transition-colors w-full inline-block text-center button-3d">
+                            <!-- Replaced Lucide external-link with Font Awesome -->
+                            <i class="fas fa-external-link-alt w-4 h-4 mr-2 inline"></i>
+                            <span id="viewHelplines">View Helplines</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-3d floating-card border-glow rounded-lg p-6 glow-effect">
+                    <div class="card-inner">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-900 to-purple-700 rounded-lg flex items-center justify-center mb-4 icon-3d">
+                            <!-- Replaced Lucide brain with Font Awesome -->
+                            <i class="fas fa-brain w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 id="quizBankTitle" class="text-xl font-semibold mb-2 text-glow">Quiz Bank</h3>
+                        <p id="quizBankDesc" class="text-gray-400 mb-4">All quiz questions and answers for study and practice.</p>
+                        <button id="downloadQuizPDF" class="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded transition-colors w-full button-3d">
+                            <!-- Replaced Lucide download with Font Awesome -->
+                            <i class="fas fa-download w-4 h-4 mr-2 inline"></i>
+                            <span id="downloadQuizText">Download Quiz PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section id="alerts" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="alertsTitle" class="text-3xl md:text-4xl font-bold mb-4 text-glow">Emergency Alerts</h2>
+                <p id="alertsDesc" class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Stay informed with real-time emergency alerts and disaster warnings from authorities.
+                </p>
+            </div>
+
+            <div id="alertsList" class="space-y-6">
+                <!-- Alerts will be populated dynamically -->
+                <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <!-- Replaced Lucide alert-triangle with Font Awesome -->
+                            <i class="fas fa-exclamation-triangle w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-semibold text-red-300">Earthquake Alert</h3>
+                                <span class="text-sm text-gray-400">2 hours ago</span>
+                            </div>
+                            <p class="text-gray-300 mb-2">Magnitude 4.2 earthquake detected.No immediate danger reported.</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                <span>Severity: Moderate</span>
+                                <span>Location: Rishikesh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <!-- Replaced Lucide cloud-rain with Font Awesome -->
+                            <i class="fas fa-cloud-rain w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-semibold text-blue-300">Flood Warning</h3>
+                                <span class="text-sm text-gray-400">6 hours ago</span>
+                            </div>
+                            <p class="text-gray-300 mb-2">Heavy rainfall expected. Residents in low-lying areas advised to take precautions.</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                <span>Severity: High</span>
+                                <span>Location: Haridwar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Helpline Numbers Section -->
+    <section id="helpline" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="helplineTitle" class="text-3xl md:text-4xl font-bold mb-4 text-glow">Emergency Helpline Numbers</h2>
+                <p id="helplineDesc" class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Important contact numbers for emergency situations and disaster response.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide phone-call with Font Awesome -->
+                            <i class="fas fa-phone-alt w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="emergencyServicesTitle" class="text-xl font-semibold">Emergency Services</h3>
+                            <p class="text-red-400 font-bold text-2xl">112</p>
+                        </div>
+                    </div>
+                    <p id="emergencyServicesDesc" class="text-gray-300 text-sm">All emergency services - Police, Fire, Medical</p>
+                </div>
+
+                <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide shield with Font Awesome -->
+                            <i class="fas fa-shield-alt w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="disasterManagementTitle" class="text-xl font-semibold">Disaster Management</h3>
+                            <p class="text-blue-400 font-bold text-2xl">1078</p>
+                        </div>
+                    </div>
+                    <p id="disasterManagementDesc" class="text-gray-300 text-sm">National Disaster Management Authority</p>
+                </div>
+
+                <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide heart with Font Awesome -->
+                            <i class="fas fa-heart w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="medicalEmergencyTitle" class="text-xl font-semibold">Medical Emergency</h3>
+                            <p class="text-green-400 font-bold text-2xl">108</p>
+                        </div>
+                    </div>
+                    <p id="medicalEmergencyDesc" class="text-gray-300 text-sm">Ambulance and medical assistance</p>
+                </div>
+
+                <div class="bg-orange-900/20 border border-orange-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide flame with Font Awesome -->
+                            <i class="fas fa-fire w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="fireServiceTitle" class="text-xl font-semibold">Fire Service</h3>
+                            <p class="text-orange-400 font-bold text-2xl">101</p>
+                        </div>
+                    </div>
+                    <p id="fireServiceDesc" class="text-gray-300 text-sm">Fire department and rescue services</p>
+                </div>
+
+                <div class="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide users with Font Awesome -->
+                            <i class="fas fa-users w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="womenHelplineTitle" class="text-xl font-semibold">Women Helpline</h3>
+                            <p class="text-purple-400 font-bold text-2xl">1091</p>
+                        </div>
+                    </div>
+                    <p id="womenHelplineDesc" class="text-gray-300 text-sm">Women in distress and emergency situations</p>
+                </div>
+
+                <div class="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
+                            <!-- Replaced Lucide baby with Font Awesome -->
+                            <i class="fas fa-baby w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="childHelplineTitle" class="text-xl font-semibold">Child Helpline</h3>
+                            <p class="text-yellow-400 font-bold text-2xl">1098</p>
+                        </div>
+                    </div>
+                    <p id="childHelplineDesc" class="text-gray-300 text-sm">Child protection and emergency assistance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900/30">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <!-- Replaced Lucide trophy with Font Awesome -->
+                <i class="fas fa-trophy w-12 h-12 text-yellow-400 mx-auto mb-4 text-5xl"></i>
+                <h2 id="leaderboardTitle" class="text-3xl md:text-4xl font-bold mb-4">Top Performers</h2>
+                <p id="leaderboardDesc" class="text-gray-300">Leading the way in disaster preparedness knowledge</p>
+            </div>
+
+            <div class="bg-gray-900/50 border border-white/10 rounded-lg p-6">
+                <div id="leaderboardList" class="space-y-4">
+                    <!-- Leaderboard will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-glow">Ready to enhance your disaster preparedness?</h2>
+            <p class="text-xl text-gray-300 mb-8">
+                Join thousands of users learning essential disaster management skills through our interactive platform.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="getStarted" class="bg-white text-black hover:bg-gray-200 px-8 py-3 rounded-lg font-semibold transition-colors button-3d">
+                    Get Started
+                </button>
+                <!-- <button id="viewAll" class="border border-white/20 text-white hover:bg-white/10 bg-transparent px-8 py-3 rounded-lg font-semibold transition-colors">
+                    View All Resources
+                </button> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <!-- Replaced Lucide shield with Font Awesome -->
+                        <i class="fas fa-shield-alt h-6 w-6"></i>
+                        <span class="font-bold">DisasterHub</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Empowering communities through comprehensive disaster management education and preparedness.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Modules</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Earthquake</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Flood</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Wildfire</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Volcanic</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="helpline.html" class="hover:text-white transition-colors">Helpline Directory</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Emergency Guides</a></li>
+                        <li><a href="drills.html" class="hover:text-white transition-colors">Virtual Drills</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Feedback</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#helpline" class="hover:text-white transition-colors">Helpline Numbers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 DisasterHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-900 rounded-lg p-8 w-full max-w-md border border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-white">
+                        <!-- Replaced Lucide x with Font Awesome -->
+                        <i class="fas fa-times w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <form id="authForm" class="space-y-4">
+                    <div>
+                        <!-- Updated label from "Email or Username" to "Email" -->
+                         <h1 class="mb-2">Email</h1>
+                        <!-- <label class="block text-sm font-medium mb-2">Email</label> -->
+                        <input type="email" id="email" name="email" required class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="password" name="password" required class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-white">
+                    </div>
+                    <button type="submit" class="w-full bg-white text-black py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors button-3d">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <button id="toggleAuthMode" class="text-gray-400 hover:text-white text-sm">
+                        Don't have an account? Sign up
+                    </button>
+                </div>
+                
+                <!-- Added cancel button for auth modal -->
+                <div class="mt-4 text-center">
+                    <button id="cancelAuth" class="text-gray-500 hover:text-gray-300 text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+<script type="text/javascript">
+  (function(d, t) {
+      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+      v.onload = function() {
+        window.voiceflow.chat.load({
+          verify: { projectID: '68d2d8a9b1e724e36e69f642' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          voice: {
+            url: "https://runtime-api.voiceflow.com"
+          }
+        });
+      }
+      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+  })(document, 'script');
+</script>
+    <!-- Removed Lucide initialization script as it's no longer used -->
+</body>
+</html>

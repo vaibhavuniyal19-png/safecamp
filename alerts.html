@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Alerts - DisasterHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+    <!-- Replaced Lucide with Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Added advanced 3D animations and styling */
+        .card-3d {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .card-3d:hover {
+            transform: rotateY(10deg) rotateX(5deg) translateZ(20px);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        .card-3d:hover .card-inner {
+            transform: translateZ(30px);
+        }
+        
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-card:nth-child(2n) {
+            animation-delay: -2s;
+        }
+        
+        .floating-card:nth-child(3n) {
+            animation-delay: -4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+            25% { transform: translateY(-10px) rotateZ(1deg); }
+            50% { transform: translateY(-5px) rotateZ(0deg); }
+            75% { transform: translateY(-15px) rotateZ(-1deg); }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg) translate(-100%, -100%);
+            transition: transform 0.6s;
+        }
+        
+        .glow-effect:hover::before {
+            transform: rotate(45deg) translate(100%, 100%);
+        }
+        
+        .morphing-bg {
+            background: linear-gradient(-45deg, #1a1a1a, #2d2d2d, #1a1a1a, #404040);
+            background-size: 400% 400%;
+            animation: morphing 8s ease-in-out infinite;
+        }
+        
+        @keyframes morphing {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.1); }
+        }
+        
+        .icon-3d {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .card-3d:hover .icon-3d {
+            transform: rotateY(180deg) scale(1.2);
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        .border-glow {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .button-3d {
+            transform: translateZ(0);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .button-3d:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .button-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .button-3d:hover::before {
+            left: 100%;
+        }
+        
+        .nav-glass {
+            backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-card { 
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-style: preserve-3d;
+        }
+        .alert-card:hover { 
+            transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pulse { 
+            animation: pulse 2s infinite; 
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+        
+        .slide-in-3d {
+            animation: slideIn3D 1s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        @keyframes slideIn3D {
+            from { 
+                opacity: 0; 
+                transform: translateX(-100px) rotateY(-90deg);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0) rotateY(0deg);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(60px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="nav-glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-2xl font-bold text-white text-glow">DisasterGuard</a>
+                    <span class="text-gray-400">Emergency Alerts</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationToggle" class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors button-3d">
+                        <!-- Replaced Lucide bell with Font Awesome -->
+                        <i class="fas fa-bell w-4 h-4 icon-3d"></i>
+                        <span>Enable Alerts</span>
+                    </button>
+                    <a href="index.html" class="text-gray-300 hover:text-white transition-colors button-3d px-4 py-2 rounded">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Status Banner -->
+    <div id="alertBanner" class="bg-green-600 text-white text-center py-3 hidden pulse-glow">
+        <div class="flex items-center justify-center space-x-2">
+            <!-- Replaced Lucide check-circle with Font Awesome -->
+            <i class="fas fa-check-circle w-5 h-5 icon-3d"></i>
+            <span>All systems normal - No active alerts</span>
+        </div>
+    </div>
+
+    <!-- Emergency Alert Modal -->
+    <div id="emergencyModal" class="hidden fixed inset-0 bg-red-900 bg-opacity-95 flex items-center justify-center z-50">
+        <div class="card-3d bg-red-800 border-2 border-red-600 rounded-lg p-8 max-w-md w-full mx-4 text-center glow-effect">
+            <div class="card-inner">
+                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 pulse">
+                    <!-- Replaced Lucide alert-triangle with Font Awesome -->
+                    <i class="fas fa-exclamation-triangle w-8 h-8 text-white icon-3d text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4 text-white text-glow">EMERGENCY ALERT</h2>
+                <p id="emergencyMessage" class="text-lg mb-6 text-red-100"></p>
+                <div class="space-y-3">
+                    <button id="acknowledgeAlert" class="w-full bg-white text-red-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors button-3d">
+                        ACKNOWLEDGE
+                    </button>
+                    <button id="viewDetails" class="w-full bg-red-700 text-white py-2 px-6 rounded-lg hover:bg-red-600 transition-colors button-3d">
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Header -->
+        <div class="text-center mb-12 fade-in-up">
+            <h1 class="text-5xl font-bold mb-6 text-glow">Emergency Alert System</h1>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto">Stay informed with real-time disaster alerts and emergency notifications for your area.</p>
+        </div>
+
+        <!-- Alert Controls -->
+        <div class="card-3d floating-card morphing-bg border-glow rounded-2xl p-8 mb-12 glow-effect">
+            <div class="card-inner">
+                <h2 class="text-2xl font-bold mb-6 text-glow">Alert Preferences</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="slide-in-3d">
+                        <h3 class="text-lg font-semibold mb-4">Location Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Your Location</label>
+                                <input type="text" id="locationInput" placeholder="Enter city, state or ZIP code" 
+                                       class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none border-glow">
+                            </div>
+                            <button id="detectLocation" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors button-3d">
+                                <!-- Replaced Lucide map-pin with Font Awesome -->
+                                <i class="fas fa-map-marker-alt w-4 h-4 icon-3d"></i>
+                                <span>Detect My Location</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="slide-in-3d">
+                        <h3 class="text-lg font-semibold mb-4">Alert Types</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="earthquakeAlerts" checked class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500">
+                                <span>Earthquake Alerts</span>
+                            </label>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="floodAlerts" checked class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500">
+                                <span>Flood Warnings</span>
+                            </label>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="wildfireAlerts" checked class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500">
+                                <span>Wildfire Alerts</span>
+                            </label>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="weatherAlerts" checked class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500">
+                                <span>Severe Weather</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button id="savePreferences" class="bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors button-3d">
+                        Save Preferences
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Alerts -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold mb-8 text-glow">Current Alerts</h2>
+            <div id="currentAlerts" class="space-y-6">
+                <!-- Current alerts will be populated here -->
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold mb-8 text-glow">Recent Alerts</h2>
+            <div id="recentAlerts" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Recent alerts will be populated here -->
+            </div>
+        </div>
+
+        <!-- Alert History -->
+        <div>
+            <h2 class="text-3xl font-bold mb-8 text-glow">Alert History</h2>
+            <div class="card-3d morphing-bg border-glow rounded-2xl overflow-hidden glow-effect">
+                <div class="card-inner">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Date</th>
+                                    <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Type</th>
+                                    <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Severity</th>
+                                    <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Location</th>
+                                    <th class="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertHistory" class="divide-y divide-gray-800">
+                                <!-- Alert history will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast card-3d morphing-bg border-glow rounded-lg p-4 max-w-sm shadow-lg glow-effect">
+        <div class="card-inner">
+            <div class="flex items-start space-x-3">
+                <div id="toastIcon" class="flex-shrink-0 w-6 h-6 mt-0.5">
+                    <!-- Replaced Lucide bell with Font Awesome -->
+                    <i class="fas fa-bell w-6 h-6 text-blue-400 icon-3d"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 id="toastTitle" class="font-semibold text-white">New Alert</h4>
+                    <p id="toastMessage" class="text-sm text-gray-300 mt-1"></p>
+                </div>
+                <button id="closeToast" class="flex-shrink-0 text-gray-400 hover:text-white button-3d">
+                    <!-- Replaced Lucide x with Font Awesome -->
+                    <i class="fas fa-times w-5 h-5 icon-3d"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const messaging = firebase.messaging();
+
+        // Alert system state
+        let userLocation = null;
+        let alertPreferences = {
+            earthquake: true,
+            flood: true,
+            wildfire: true,
+            weather: true
+        };
+        let notificationsEnabled = false;
+
+        // Sample alert data
+        const sampleAlerts = [
+            {
+                id: 1,
+                type: 'earthquake',
+                severity: 'moderate',
+                title: 'Earthquake Alert',
+                message: 'Magnitude 4.2 earthquake detected 15 miles southeast of your location',
+                location: 'San Francisco Bay Area',
+                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+                status: 'active',
+                icon: 'mountain'
+            },
+            {
+                id: 2,
+                type: 'weather',
+                severity: 'high',
+                title: 'Severe Thunderstorm Warning',
+                message: 'Severe thunderstorm with damaging winds and large hail approaching',
+                location: 'Downtown Area',
+                timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+                status: 'active',
+                icon: 'bolt'
+            },
+            {
+                id: 3,
+                type: 'flood',
+                severity: 'low',
+                title: 'Flood Watch',
+                message: 'Heavy rainfall may cause minor flooding in low-lying areas',
+                location: 'River Valley',
+                timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+                status: 'resolved',
+                icon: 'water'
+            }
+        ];
+
+        // Initialize the alert system
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadAlerts();
+            checkNotificationPermission();
+            
+            // Simulate real-time alerts
+            setInterval(simulateAlert, 30000); // Every 30 seconds for demo
+        });
+
+        function setupEventListeners() {
+            document.getElementById('notificationToggle').addEventListener('click', toggleNotifications);
+            document.getElementById('detectLocation').addEventListener('click', detectLocation);
+            document.getElementById('savePreferences').addEventListener('click', savePreferences);
+            document.getElementById('acknowledgeAlert').addEventListener('click', acknowledgeEmergencyAlert);
+            document.getElementById('viewDetails').addEventListener('click', viewAlertDetails);
+            document.getElementById('closeToast').addEventListener('click', closeToast);
+        }
+
+        function toggleNotifications() {
+            if (!notificationsEnabled) {
+                requestNotificationPermission();
+            } else {
+                disableNotifications();
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationsEnabled = true;
+                        updateNotificationButton();
+                        showToast('Notifications enabled', 'You will receive emergency alerts', 'check-circle', 'text-green-400');
+                    } else {
+                        showToast('Notifications blocked', 'Please enable notifications in your browser settings', 'times-circle', 'text-red-400');
+                    }
+                });
+            }
+        }
+
+        function disableNotifications() {
+            notificationsEnabled = false;
+            updateNotificationButton();
+            showToast('Notifications disabled', 'You will no longer receive alerts', 'bell-slash', 'text-yellow-400');
+        }
+
+        function updateNotificationButton() {
+            const button = document.getElementById('notificationToggle');
+            const icon = button.querySelector('i');
+            const text = button.querySelector('span');
+            
+            if (notificationsEnabled) {
+                button.className = 'flex items-center space-x-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors button-3d';
+                icon.className = 'fas fa-bell-slash w-4 h-4 icon-3d';
+                text.textContent = 'Alerts Enabled';
+            } else {
+                button.className = 'flex items-center space-x-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors button-3d';
+                icon.className = 'fas fa-bell w-4 h-4 icon-3d';
+                text.textContent = 'Enable Alerts';
+            }
+        }
+
+        function checkNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                notificationsEnabled = true;
+                updateNotificationButton();
+            }
+        }
+
+        function detectLocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        // Simulate reverse geocoding
+                        userLocation = { lat, lon, name: 'Current Location' };
+                        document.getElementById('locationInput').value = 'Current Location';
+                        showToast('Location detected', 'Your location has been updated', 'map-marker-alt', 'text-blue-400');
+                    },
+                    error => {
+                        showToast('Location error', 'Unable to detect your location', 'map-marker-alt', 'text-red-400');
+                    }
+                );
+            }
+        }
+
+        function savePreferences() {
+            alertPreferences = {
+                earthquake: document.getElementById('earthquakeAlerts').checked,
+                flood: document.getElementById('floodAlerts').checked,
+                wildfire: document.getElementById('wildfireAlerts').checked,
+                weather: document.getElementById('weatherAlerts').checked
+            };
+            
+            showToast('Preferences saved', 'Your alert preferences have been updated', 'cog', 'text-green-400');
+        }
+
+        function loadAlerts() {
+            loadCurrentAlerts();
+            loadRecentAlerts();
+            loadAlertHistory();
+            updateAlertBanner();
+        }
+
+        function loadCurrentAlerts() {
+            const currentAlerts = sampleAlerts.filter(alert => alert.status === 'active');
+            const container = document.getElementById('currentAlerts');
+            
+            if (currentAlerts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fas fa-check-circle w-16 h-16 mx-auto mb-4 text-green-400 text-6xl"></i>
+                        <h3 class="text-xl font-semibold mb-2">No Active Alerts</h3>
+                        <p>All systems are normal in your area</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = currentAlerts.map(alert => createAlertCard(alert, true)).join('');
+            }
+        }
+
+        function loadRecentAlerts() {
+            const recentAlerts = sampleAlerts.slice(0, 6);
+            const container = document.getElementById('recentAlerts');
+            
+            container.innerHTML = recentAlerts.map(alert => createAlertCard(alert, false)).join('');
+        }
+
+        function loadAlertHistory() {
+            const container = document.getElementById('alertHistory');
+            
+            container.innerHTML = sampleAlerts.map(alert => `
+                <tr class="hover:bg-gray-800 transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-300">${formatDate(alert.timestamp)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-${alert.icon} w-4 h-4 ${getSeverityColor(alert.severity)}"></i>
+                            <span class="text-sm font-medium">${alert.type.charAt(0).toUpperCase() + alert.type.slice(1)}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getSeverityBadge(alert.severity)}">
+                            ${alert.severity.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-300">${alert.location}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${alert.status === 'active' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'}">
+                            ${alert.status.toUpperCase()}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function createAlertCard(alert, isActive) {
+            return `
+                <div class="alert-card card-3d floating-card morphing-bg rounded-2xl p-6 border ${isActive ? 'border-red-500' : 'border-gray-800'} ${isActive ? 'bg-red-900/20' : ''} glow-effect">
+                    <div class="card-inner">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 ${getSeverityBackground(alert.severity)} rounded-lg flex items-center justify-center pulse-glow">
+                                    <i class="fas fa-${alert.icon} w-6 h-6 text-white icon-3d"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-glow">${alert.title}</h3>
+                                    <p class="text-gray-400">${alert.location}</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-medium rounded-full ${getSeverityBadge(alert.severity)}">
+                                ${alert.severity.toUpperCase()}
+                            </span>
+                        </div>
+                        <p class="text-gray-300 mb-4">${alert.message}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-400">${formatTimeAgo(alert.timestamp)}</span>
+                            ${isActive ? `
+                                <div class="space-x-2">
+                                    <button class="bg-white text-black px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors button-3d">
+                                        View Details
+                                    </button>
+                                    <button class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors button-3d">
+                                        Dismiss
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateAlertBanner() {
+            const activeAlerts = sampleAlerts.filter(alert => alert.status === 'active');
+            const banner = document.getElementById('alertBanner');
+            
+            if (activeAlerts.length === 0) {
+                banner.className = 'bg-green-600 text-white text-center py-3';
+                banner.innerHTML = `
+                    <div class="flex items-center justify-center space-x-2">
+                        <i class="fas fa-check-circle w-5 h-5 icon-3d"></i>
+                        <span>All systems normal - No active alerts</span>
+                    </div>
+                `;
+            } else {
+                banner.className = 'bg-red-600 text-white text-center py-3';
+                banner.innerHTML = `
+                    <div class="flex items-center justify-center space-x-2">
+                        <i class="fas fa-exclamation-triangle w-5 h-5 icon-3d"></i>
+                        <span>${activeAlerts.length} active alert${activeAlerts.length > 1 ? 's' : ''} in your area</span>
+                    </div>
+                `;
+            }
+            
+            banner.classList.remove('hidden');
+        }
+
+        function simulateAlert() {
+            // Simulate receiving a new alert (for demo purposes)
+            if (Math.random() < 0.1) { // 10% chance every 30 seconds
+                const alertTypes = ['earthquake', 'weather', 'flood', 'wildfire'];
+                const severities = ['low', 'moderate', 'high'];
+                const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+                const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+                
+                const newAlert = {
+                    id: Date.now(),
+                    type: randomType,
+                    severity: randomSeverity,
+                    title: `${randomType.charAt(0).toUpperCase() + randomType.slice(1)} Alert`,
+                    message: `New ${randomType} alert detected in your area`,
+                    location: 'Your Area',
+                    timestamp: new Date(),
+                    status: 'active',
+                    icon: getAlertIcon(randomType)
+                };
+                
+                if (randomSeverity === 'high') {
+                    showEmergencyAlert(newAlert);
+                } else {
+                    showToast(newAlert.title, newAlert.message, newAlert.icon, getSeverityColor(newAlert.severity));
+                }
+                
+                if (notificationsEnabled) {
+                    new Notification(newAlert.title, {
+                        body: newAlert.message,
+                        icon: '/favicon.ico'
+                    });
+                }
+            }
+        }
+
+        function showEmergencyAlert(alert) {
+            document.getElementById('emergencyMessage').textContent = alert.message;
+            document.getElementById('emergencyModal').classList.remove('hidden');
+        }
+
+        function acknowledgeEmergencyAlert() {
+            document.getElementById('emergencyModal').classList.add('hidden');
+        }
+
+        function viewAlertDetails() {
+            document.getElementById('emergencyModal').classList.add('hidden');
+            // In a real app, this would navigate to detailed alert information
+        }
+
+        function showToast(title, message, icon, iconClass) {
+            const toast = document.getElementById('notificationToast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastIcon.innerHTML = `<i class="fas fa-${icon} w-6 h-6 ${iconClass} icon-3d"></i>`;
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        function closeToast() {
+            document.getElementById('notificationToast').classList.remove('show');
+        }
+
+        // Utility functions
+        function getSeverityColor(severity) {
+            switch (severity) {
+                case 'low': return 'text-yellow-400';
+                case 'moderate': return 'text-orange-400';
+                case 'high': return 'text-red-400';
+                default: return 'text-gray-400';
+            }
+        }
+
+        function getSeverityBackground(severity) {
+            switch (severity) {
+                case 'low': return 'bg-yellow-600';
+                case 'moderate': return 'bg-orange-600';
+                case 'high': return 'bg-red-600';
+                default: return 'bg-gray-600';
+            }
+        }
+
+        function getSeverityBadge(severity) {
+            switch (severity) {
+                case 'low': return 'bg-yellow-900 text-yellow-300';
+                case 'moderate': return 'bg-orange-900 text-orange-300';
+                case 'high': return 'bg-red-900 text-red-300';
+                default: return 'bg-gray-900 text-gray-300';
+            }
+        }
+
+        function getAlertIcon(type) {
+            switch (type) {
+                case 'earthquake': return 'mountain';
+                case 'flood': return 'water';
+                case 'wildfire': return 'fire';
+                case 'weather': return 'bolt';
+                default: return 'exclamation-triangle';
+            }
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+    </script>
+</body>
+</html>
